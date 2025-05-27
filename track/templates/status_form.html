@@ -1,9 +1,27 @@
-<h1>Add New Status</h1>
+{% extends "base.html" %}
+{% block title %}Add Status{% endblock %}
+{% block content %}
+  <h1>Add New Status</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Status</button>
+  </form>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Save Status</button>
-</form>
+  <h2>Your Custom Statuses</h2>
+  <ul>
+    {% for status in statuses %}
+      <li>
+        {{ status.name }}
+        {% if status.user %}
+          <form method="post" action="{% url 'status_delete' status.id %}" class="inline-form" style="display:inline">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
 
-<p><a href="{% url 'application_create' %}">Back to Add Application</a></p>
+  <p><a href="{% url 'application_list' %}">← Back</a></p>
+{% endblock %}

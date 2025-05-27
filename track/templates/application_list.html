@@ -1,10 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Your Applications{% endblock %}
+{% block content %}
+
+
+  <h2>Your Job Applications</h2>
+  <a href="{% url 'application_create' %}">+ Add New Application</a> |
+  <a href="{% url 'status_create' %}">Add a new status</a>
+
+  {% for app in applications %}
+    <div class="card">
+      <button onclick="toggleStatus('status-{{ app.id }}')">
+        {{ app.company }} - {{ app.position }}
+        {% if app.latest_status_update %}
+          (Latest: {{ app.latest_status_update.status.name }} on {{ app.latest_status_update.date }})
+        {% else %}
+          (No updates yet)
+        {% endif %}
+      </button>
+      <a href="{% url 'application_delete' app.id %}" style="color: red; margin-left: 10px;" onclick="return confirm('Delete this job application?');">🗑 Delete</a>
+
+      <div id="status-{{ app.id }}" style="display: none;">
+        <ul>
+          {% for update in app.status_updates.all %}
+            <li>
+              {{ update.status.name }} - {{ update.date }}{% if update.notes %} ({{ update.notes }}){% endif %}
+              <a href="{% url 'status_update_delete' update.id %}" style="color: red;" onclick="return confirm('Delete this status update?');">🗑</a>
+            </li>
+          {% empty %}
+            <li>No status updates yet.</li>
+          {% endfor %}
+        </ul>
+        <a href="{% url 'add_status_update' app.id %}">Add Status Update</a>
+      </div>
+    </div>
+  {% endfor %}
+
+<form method="get" action="{% url 'export_excel' %}">
+    <button type="submit">Download Excel</button>
+</form>
+
+
+  <script>
+    function toggleStatus(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+{% endblock %}
