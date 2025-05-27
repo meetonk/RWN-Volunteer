@@ -1,0 +1,9 @@
+<h1>Add New Status</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save Status</button>
+</form>
+
+<p><a href="{% url 'application_create' %}">Back to Add Application</a></p>
