@@ -1,9 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Job Tracker{% endblock %}</title>
+    <title>{% block title %}Volunteer Tracker{% endblock %}</title>
+    <link rel="icon" href="{% static 'RWNLogo.png' %}" type="image/png">
     <style>
 
                 /* Give the inline forms a visible outline */
@@ -27,10 +30,10 @@
 
 
         :root {
-            --gt-gold: #b3a369;
+            --gt-gold: #f3c845;
             --gt-white: #ffffff;
-            --gt-navy: #003057;
-            --gt-gray: #d6d6d6;
+            --gt-navy: #5A9A96;
+            --gt-gray: #FAF9EA;
         }
 
         /* Reset and base */
@@ -68,7 +71,21 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             z-index: 1000;
         }
+        header .header-left img {
+          background-color: white;
+          border-radius: 50%;       /* makes it circular */
+          padding: 5px;             /* space inside the circle around the logo */
+          height: 40px;
+          width: 40px;              /* keep width equal to height for perfect circle */
+          box-sizing: content-box;  /* padding won't shrink the image */
+          object-fit: contain;      /* keep the logo properly scaled inside */
+        }
 
+        header .header-left {
+            display: flex;
+            align-items: center;  /* vertically centers image and text */
+            gap: 0.5rem;          /* spacing between logo and text */
+        }
         header .header-left h1 {
             font-size: 1.8rem;
             font-weight: bold;
@@ -222,7 +239,8 @@
 <body>
     <header class="header">
         <div class="header-left">
-            <h1>Application Tracker</h1>
+            <img src="{% static 'RWNlogo.png' %}" alt="Logo" style="height: 40px;">
+            <h1>RWN Volunteer Tracker</h1>
         </div>
         <div class="header-right">
             {% if request.user.is_authenticated %}

@@ -3,8 +3,8 @@
 {% block content %}
 
 
-  <h2>Your Job Applications</h2>
-  <a href="{% url 'application_create' %}">+ Add New Application</a> |
+  <h2>Volunteers</h2>
+  <a href="{% url 'application_create' %}">+ Add New Volunteer</a> |
   <a href="{% url 'status_create' %}">Add a new status</a>
 
   {% for app in applications %}
@@ -23,7 +23,7 @@
         <ul>
           {% for update in app.status_updates.all %}
             <li>
-              {{ update.status.name }} - {{ update.date }}{% if update.notes %} ({{ update.notes }}){% endif %}
+              {{ update.display_status }} - {{ update.date }}{% if update.notes %} ({{ update.notes }}){% endif %}
               <a href="{% url 'status_update_delete' update.id %}" style="color: red;" onclick="return confirm('Delete this status update?');">🗑</a>
             </li>
           {% empty %}

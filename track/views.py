@@ -1,4 +1,5 @@
 import openpyxl
+from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 from django.http import HttpResponse
 from .models import JobApplication
@@ -108,28 +109,51 @@ def export_applications_excel(request):
     if not user.is_authenticated:
         return HttpResponse("Unauthorized", status=401)
 
-    # Create workbook and sheet
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Applications"
 
-    # Write header
-    headers = ["Company", "Position"]
+    # Write headers
+    headers = ["Name", "Position", "Activity"]
     for col_num, header in enumerate(headers, 1):
         ws.cell(row=1, column=col_num).value = header
 
-    # Write job application data
+    # Get user's applications
     applications = JobApplication.objects.filter(user=user)
+
     for row_num, app in enumerate(applications, 2):
         ws.cell(row=row_num, column=1).value = app.company
         ws.cell(row=row_num, column=2).value = app.position
 
+        # Gather status updates ordered by date
+        status_updates = app.status_updates.order_by('date')
+
+        # Format status text lines: "Status Name - Date (optional notes)"
+        status_lines = []
+        for update in status_updates:
+            line = f"{update.status.name} - {update.date.strftime('%m/%d/%Y')}"
+            if update.notes:
+                line += f" ({update.notes})"
+            status_lines.append(line)
+
+        # Join all lines with newlines
+        statuses_text = "\n".join(status_lines) if status_lines else "No status updates"
+
+        cell = ws.cell(row=row_num, column=3)
+        cell.value = statuses_text
+
+        # Enable text wrap in this cell
+        cell.alignment = Alignment(wrap_text=True)
+
     # Adjust column widths
     for col in range(1, len(headers) + 1):
         col_letter = get_column_letter(col)
-        ws.column_dimensions[col_letter].width = 20
+        if col == 3:
+            # Make status column wider
+            ws.column_dimensions[col_letter].width = 40
+        else:
+            ws.column_dimensions[col_letter].width = 20
 
-    # Prepare response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=job_applications.xlsx'
     wb.save(response)

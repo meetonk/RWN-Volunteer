@@ -14,7 +14,7 @@ class ApplicationStatus(models.Model):
 
 class JobApplication(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.CharField(max_length=100)
+    company = models.CharField(max_length=100, verbose_name="Name")
     position = models.CharField(max_length=100)
     # location = models.CharField(max_length=100, blank=True)
     application_date = models.DateField(auto_now_add=True)
@@ -44,6 +44,21 @@ class ApplicationStatusUpdate(models.Model):
         ordering = ['date']
 
     def __str__(self):
-        return f"{self.status.name} on {self.date}"
+        return f"{self.display_status()} on {self.date}"
+
+    def display_status(self):
+        """Return status with numbering if it's a Session or Driving."""
+        name = self.status.name.lower()
+        if name in ["session", "driving"]:
+            # Get all status updates for this job with this status name
+            relevant_updates = [
+                update for update in self.job_application.status_updates.all()
+                if update.status.name.lower() == name
+            ]
+            index = relevant_updates.index(self) + 1 if self in relevant_updates else 1
+            # Capitalize the status name for display
+            display_name = self.status.name.capitalize()
+            return f"{display_name} #{index}"
+        return self.status.name
 
 
